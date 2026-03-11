@@ -14,4 +14,4 @@ runs:
       env:
         INPUT_VERSION: ${{ inputs.version }}
         GH_TOKEN: ${{ github.token }}
-      run: ${{ github.action_path }}/setup.sh
+      run: "$GITHUB_ACTION_PATH/setup.sh"
