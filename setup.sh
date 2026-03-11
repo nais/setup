@@ -63,5 +63,10 @@ mkdir -p "$INSTALL_DIR"
 cp "$TMPDIR/$BINARY" "$INSTALL_DIR/$BINARY"
 chmod 755 "$INSTALL_DIR/$BINARY"
 
-echo "$INSTALL_DIR" >>"$GITHUB_PATH"
+PATH_EXPORT_DIR="$INSTALL_DIR"
+if [[ "$OS_NAME" == "windows" ]]; then
+	PATH_EXPORT_DIR="$(cygpath -w "$INSTALL_DIR")"
+fi
+
+echo "$PATH_EXPORT_DIR" >>"$GITHUB_PATH"
 echo "Installed nais $TAG to $INSTALL_DIR/$BINARY"
