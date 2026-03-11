@@ -41,6 +41,7 @@ jobs:
         with:
           version: "v3.8.3"
       - name: Verify specific version
+        shell: bash
         run: |
           version_output="$(nais --version)"
           if [[ "$version_output" == *"3.8.3"* ]]; then
