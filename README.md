@@ -39,13 +39,22 @@ A GitHub Action to install the [Nais CLI](https://github.com/nais/cli) on Linux 
 
 ## Requirements
 
-- Linux runner (`ubuntu-latest`, `ubuntu-20.04`, etc.)
+- Linux or macOS runner
+- `gh` CLI available on the runner (pre-installed on GitHub-hosted runners)
+
+## Releasing
+
+```bash
+./release.sh v1.2.3
+```
+
+Pre-release (skips updating the major version branch):
+
+```bash
+./release.sh v1.2.3-rc.1
+```
 
 ## Support
 
-- 📖 [Nais CLI Documentation](https://doc.nais.io/cli)
-- 🐛 [Report Issues](https://github.com/nais/setup/issues)
-
----
-
-**Contributing:** See [DEVELOPMENT.md](DEVELOPMENT.md) for development setup.
+- [Nais CLI Documentation](https://doc.nais.io/cli)
+- [Report Issues](https://github.com/nais/setup/issues)

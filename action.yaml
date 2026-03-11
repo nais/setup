@@ -1,5 +1,5 @@
 name: "Nais Setup CLI"
-description: "Setup CLI for the Nais platform (Linux only)"
+description: "Setup CLI for the Nais platform"
 author: "nais"
 inputs:
   version:
@@ -7,5 +7,11 @@ inputs:
     required: false
     default: "latest"
 runs:
-  using: "node24"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - name: Install nais CLI
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        GH_TOKEN: ${{ github.token }}
+      run: ${{ github.action_path }}/setup.sh
