@@ -35,6 +35,7 @@ export interface ChecksumVerification {
 export interface InstallationResult {
   binaryPath: string;
   version: string;
+  dryRun: boolean;
 }
 
 /**
