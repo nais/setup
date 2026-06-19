@@ -1,6 +1,6 @@
 {
   "name": "setup",
-  "version": "1.0.0-next.5",
+  "version": "1.0.0-next.6",
   "description": "GitHub Action to setup nais CLI",
   "type": "module",
   "main": "dist/index.js",

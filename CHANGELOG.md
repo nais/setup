@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.0-next.6
+
+### Minor Changes
+
+- 1dbdea4: Add `team` and `environment` inputs to persist nais CLI defaults via `nais defaults set`
+
 ## 1.0.0-next.5
 
 ### Patch Changes
