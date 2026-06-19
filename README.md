@@ -19,7 +19,7 @@ A GitHub Action to install the [Nais CLI](https://github.com/nais/cli) on Linux 
 
 ### With default team and environment
 
-Persisted via `nais defaults set`, so later `nais` commands pick them up automatically:
+Written to the nais CLI config file so later `nais` commands pick them up automatically:
 
 ```yaml
 - uses: nais/setup@v1
@@ -33,8 +33,8 @@ Persisted via `nais defaults set`, so later `nais` commands pick them up automat
 | Name          | Description                                       | Required | Default  |
 | ------------- | ------------------------------------------------- | -------- | -------- |
 | `version`     | Version to install (`v3.8.3` or `latest`)         | No       | `latest` |
-| `team`        | Default team persisted via `nais defaults set`    | No       | —        |
-| `environment` | Default environment persisted via `nais defaults set` | No   | —        |
+| `team`        | Default team written to the nais config file      | No       | —        |
+| `environment` | Default environment written to the nais config file | No     | —        |
 
 ## Version Pinning
 
