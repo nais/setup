@@ -7,10 +7,10 @@ inputs:
     required: false
     default: "latest"
   team:
-    description: "Default team to persist via 'nais defaults set team <value>'"
+    description: "Default team written to the nais CLI config file"
     required: false
   environment:
-    description: "Default environment to persist via 'nais defaults set environment <value>'"
+    description: "Default environment written to the nais CLI config file"
     required: false
 runs:
   using: "node24"

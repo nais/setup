@@ -19,7 +19,7 @@ async function run(): Promise<void> {
     const environment = core.getInput('environment');
     if ((team || environment) && !result.dryRun) {
       core.startGroup('⚙️ Setting nais defaults');
-      await setDefaults(result.binaryPath, { team, environment });
+      setDefaults({ team, environment });
       core.endGroup();
     }
 
