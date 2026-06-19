@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import { setDefaults } from './defaults';
 import { setupNaisCli } from './setup-nais-cli';
 
 /**
@@ -12,7 +13,15 @@ async function run(): Promise<void> {
     const version = core.getInput('version') || 'latest';
     core.info(`Setting up nais CLI version: ${version}`);
 
-    await setupNaisCli(version);
+    const result = await setupNaisCli(version);
+
+    const team = core.getInput('team');
+    const environment = core.getInput('environment');
+    if ((team || environment) && !result.dryRun) {
+      core.startGroup('⚙️ Setting nais defaults');
+      await setDefaults(result.binaryPath, { team, environment });
+      core.endGroup();
+    }
 
     core.info('✅ nais CLI setup completed successfully!');
   } catch (error) {

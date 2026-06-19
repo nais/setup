@@ -93,6 +93,7 @@ export async function downloadAndInstall(
     return {
       binaryPath: targetPath,
       version,
+      dryRun: isDryRun,
     };
   } catch (error) {
     if (error instanceof NaisCliError) {

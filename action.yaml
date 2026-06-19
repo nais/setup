@@ -6,6 +6,12 @@ inputs:
     description: "Version of nais CLI to install (e.g., 'v3.8.3' or 'latest')"
     required: false
     default: "latest"
+  team:
+    description: "Default team to persist via 'nais defaults set team <value>'"
+    required: false
+  environment:
+    description: "Default environment to persist via 'nais defaults set environment <value>'"
+    required: false
 runs:
   using: "node24"
   main: "dist/index.js"
