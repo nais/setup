@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.0-next.7
+
+### Patch Changes
+
+- 01bfc04: Write defaults directly to the nais config file instead of running `nais defaults set`, which hangs on a fresh CI runner
+
 ## 1.0.0-next.6
 
 ### Minor Changes
