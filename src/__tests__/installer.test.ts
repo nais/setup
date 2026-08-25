@@ -1,12 +1,32 @@
-import { downloadAndInstall } from '../installer';
-import { PlatformInfo, ReleaseInfo } from '../types';
+import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type * as coreModule from '@actions/core';
+import type * as execModule from '@actions/exec';
+import type * as ioModule from '@actions/io';
+import type * as tcModule from '@actions/tool-cache';
+import type * as fsModule from 'fs';
+import type { PlatformInfo, ReleaseInfo } from '../types';
 
-// Mock the external dependencies
-jest.mock('@actions/core');
-jest.mock('@actions/tool-cache');
-jest.mock('@actions/io');
-jest.mock('@actions/exec');
-jest.mock('fs', () => ({
+// Mock the external dependencies (ESM requires unstable_mockModule + dynamic imports)
+jest.unstable_mockModule('@actions/core', () => ({
+  addPath: jest.fn(),
+  info: jest.fn(),
+  setFailed: jest.fn(),
+  warning: jest.fn(),
+  debug: jest.fn(),
+  error: jest.fn(),
+}));
+jest.unstable_mockModule('@actions/tool-cache', () => ({
+  downloadTool: jest.fn(),
+  extractTar: jest.fn(),
+}));
+jest.unstable_mockModule('@actions/io', () => ({
+  mkdirP: jest.fn(),
+  cp: jest.fn(),
+}));
+jest.unstable_mockModule('@actions/exec', () => ({
+  exec: jest.fn(),
+}));
+jest.unstable_mockModule('fs', () => ({
   readFileSync: jest.fn(),
   promises: {
     access: jest.fn(),
@@ -17,17 +37,12 @@ jest.mock('fs', () => ({
   },
 }));
 
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
-import * as io from '@actions/io';
-import * as tc from '@actions/tool-cache';
-import * as fs from 'fs';
-
-const mockCore = core as jest.Mocked<typeof core>;
-const mockTc = tc as jest.Mocked<typeof tc>;
-const mockIo = io as jest.Mocked<typeof io>;
-const mockExec = exec as jest.Mocked<typeof exec>;
-const mockFs = fs as jest.Mocked<typeof fs>;
+const { downloadAndInstall } = await import('../installer');
+const mockCore = (await import('@actions/core')) as jest.Mocked<typeof coreModule>;
+const mockExec = (await import('@actions/exec')) as jest.Mocked<typeof execModule>;
+const mockIo = (await import('@actions/io')) as jest.Mocked<typeof ioModule>;
+const mockTc = (await import('@actions/tool-cache')) as jest.Mocked<typeof tcModule>;
+const mockFs = (await import('fs')) as jest.Mocked<typeof fsModule>;
 
 describe('Installer', () => {
   const originalEnv = process.env;
