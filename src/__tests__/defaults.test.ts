@@ -1,10 +1,14 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { setDefaults } from '../defaults';
-import { NaisCliError } from '../types';
+import { describe, expect, it, beforeEach, afterEach, jest } from '@jest/globals';
 
-jest.mock('@actions/core');
+jest.unstable_mockModule('@actions/core', () => ({
+  info: jest.fn(),
+}));
+
+const { setDefaults } = await import('../defaults');
+const { NaisCliError } = await import('../types');
 
 describe('setDefaults', () => {
   let tmpDir: string;
