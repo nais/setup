@@ -23,9 +23,8 @@ jobs:
         id: changesets
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # ratchet:changesets/action@v2
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: npm run release:publish
-          title: 'Release: New version'
-          commit: 'Release: New version'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          publish-script: npm run release:publish
+          pr-title: 'Release: New version'
+          commit-message: 'Release: New version'
