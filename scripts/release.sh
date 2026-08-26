@@ -41,18 +41,16 @@ fi
 # For stable releases, create/update the major version branch
 if [ "$IS_PRERELEASE" = false ]; then
   echo "Updating major version branch $MAJOR_VERSION"
-  
+
   # Create/update the major version branch
   git checkout -B "$MAJOR_VERSION"
-  
+
   # Push the release branch
   git push origin "$MAJOR_VERSION" --force
-  
+
   echo "✅ Updated release branch $MAJOR_VERSION"
 fi
 
-# Always create the specific version tag (for both stable and prerelease)
-git tag -fa "$TAG" -m "Release $TAG"
-git push origin "$TAG" --force
+pnpm changeset git-tag
 
 echo "✅ Created tag $TAG"
