@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.1
+
+### Patch Changes
+
+- bb0c82b: Create GitHub releases
+
 ## 1.0.0
 
 ### Major Changes
