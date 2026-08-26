@@ -12,7 +12,7 @@ This project uses [Changesets](https://github.com/changesets/changesets) for aut
 
 ```bash
 # 1. Create changeset
-npm run changeset
+pnpm run changeset
 
 # 2. Commit and push
 git add . && git commit -m "Add feature" && git push
@@ -41,6 +41,6 @@ The workflow automatically:
 If automation fails:
 
 ```bash
-npm run release:prepare
+pnpm run release:prepare
 git tag v1.0.0 && git push origin v1.0.0
 ```
