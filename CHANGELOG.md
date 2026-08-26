@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.2
+
+### Patch Changes
+
+- [`0e8c7a6`](https://github.com/nais/setup/commit/0e8c7a6149b6c0bf9fe9c6f8f2e1f63c115a68a8) Thanks [@thokra-nav](https://github.com/thokra-nav)! - Fix release artifacts
+
 ## 1.0.1
 
 ### Patch Changes
