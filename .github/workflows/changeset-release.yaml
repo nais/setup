@@ -25,5 +25,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           publish-script: pnpm run release:publish
+          create-github-releases: true
+          push-git-tags: true
+          push-with-git-cli: true
           pr-title: 'Release: New version'
           commit-message: 'Release: New version'
