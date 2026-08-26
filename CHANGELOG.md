@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.0-next.9
+
+### Patch Changes
+
+- f335765: Force retrigger
+
 ## 1.0.0-next.8
 
 ### Major Changes
