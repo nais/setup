@@ -31,7 +31,7 @@ try {
 
   // Build the action first
   console.log('📦 Building action...');
-  execSync('npm run build', { stdio: 'pipe' });
+  execSync('pnpm run build', { stdio: 'pipe' });
   console.log('✅ Build completed\n');
 
   // Run the action

@@ -12,22 +12,22 @@ cd setup
 mise trust && mise install
 
 # Install dependencies
-npm install
+pnpm install
 ```
 
 ## Development Commands
 
 ```bash
 # Run all checks (recommended before committing)
-npm run check
+pnpm run check
 
 # Individual commands
-npm run build              # Compile TypeScript
-npm run test               # Run unit tests
-npm run test:integration   # End-to-end test with dry-run
-npm run lint               # Check code quality
-npm run format             # Format code
-npm run typecheck          # Check types
+pnpm run build              # Compile TypeScript
+pnpm run test               # Run unit tests
+pnpm run test:integration   # End-to-end test with dry-run
+pnpm run lint               # Check code quality
+pnpm run format             # Format code
+pnpm run typecheck          # Check types
 ```
 
 ## Testing
@@ -36,10 +36,10 @@ Tests use dry-run mode to avoid installing binaries locally:
 
 ```bash
 # Unit tests (mocked)
-npm test
+pnpm test
 
 # Integration test (real downloads, no installation)
-npm run test:integration
+pnpm run test:integration
 
 # Manual test
 NAIS_CLI_DRY_RUN=true RUNNER_OS=Linux RUNNER_ARCH=X64 RUNNER_TEMP=/tmp INPUT_VERSION=latest node dist/index.js
@@ -51,7 +51,7 @@ We use [Changesets](https://github.com/changesets/changesets) for releases:
 
 ```bash
 # 1. Create changeset describing your changes
-npm run changeset
+pnpm run changeset
 
 # 2. Commit and push to javascript branch
 git add . && git commit -m "Add feature" && git push
@@ -88,19 +88,19 @@ See [RELEASE_STRATEGY.md](RELEASE_STRATEGY.md) for detailed release information.
 
 ```bash
 # Clean rebuild
-npm run clean && npm install && npm run build
+pnpm run clean && pnpm install && pnpm run build
 
 # Debug TypeScript issues
-npm run typecheck
+pnpm run typecheck
 
 # Fix linting/formatting
-npm run lint:fix && npm run format
+pnpm run lint:fix && pnpm run format
 ```
 
 ## Contributing
 
 1. Fork and create feature branch from `javascript`
 2. Make changes and add tests
-3. Run `npm run check` to verify quality
-4. Create changeset: `npm run changeset`
+3. Run `pnpm run check` to verify quality
+4. Create changeset: `pnpm run changeset`
 5. Submit pull request

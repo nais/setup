@@ -12,19 +12,19 @@ jobs:
         with:
           cache: false
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
       - name: Run type checking
-        run: npm run typecheck
+        run: pnpm run typecheck
       - name: Run linting
-        run: npm run lint
+        run: pnpm run lint
       - name: Run tests
-        run: npm test
+        run: pnpm test
       - name: Build action
-        run: npm run build
+        run: pnpm run build
       - name: Check dist is up to date
         run: |
           if [ -n "$(git status --porcelain dist)" ]; then
-            echo "ERROR: dist directory is not up to date. Please run 'npm run build' and commit the changes."
+            echo "ERROR: dist directory is not up to date. Please run 'pnpm run build' and commit the changes."
             git status --porcelain dist
             exit 1
           fi
@@ -38,9 +38,9 @@ jobs:
         with:
           cache: false
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
       - name: Build action
-        run: npm run build
+        run: pnpm run build
       - name: Test action (latest version)
         uses: ./
         with:
@@ -68,13 +68,13 @@ jobs:
         with:
           cache: false
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
       - name: Build action
-        run: npm run build
+        run: pnpm run build
       - name: Test action (specific version)
         uses: ./
         with:
-          version: "v3.8.3"
+          version: 'v3.8.3'
       - name: Verify specific version
         run: |
           echo "PATH: $PATH"
