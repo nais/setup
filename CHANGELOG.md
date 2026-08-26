@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.0-next.10
+
+### Patch Changes
+
+- f335765: Rerelease again
+
 ## 1.0.0-next.9
 
 ### Patch Changes
