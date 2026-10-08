@@ -1,5 +1,11 @@
 # setup
 
+## 1.0.3
+
+### Patch Changes
+
+- [#43](https://github.com/nais/setup/pull/43) [`5f4926f`](https://github.com/nais/setup/commit/5f4926ff6c29b9ca6c88d085b81df134cd4454ba) Thanks [@jhrv](https://github.com/jhrv)! - Authenticate nais CLI release lookups with the workflow's GitHub token by default to avoid the shared unauthenticated API rate limit.
+
 ## 1.0.2
 
 ### Patch Changes
