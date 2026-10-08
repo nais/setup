@@ -33,6 +33,7 @@ Written to the nais CLI config file so later `nais` commands pick them up automa
 | Name          | Description                                       | Required | Default  |
 | ------------- | ------------------------------------------------- | -------- | -------- |
 | `version`     | Version to install (`v3.8.3` or `latest`)         | No       | `latest` |
+| `github-token` | Token for fetching CLI releases from GitHub API   | No       | `${{ github.token }}` |
 | `team`        | Default team written to the nais config file      | No       | —        |
 | `environment` | Default environment written to the nais config file | No     | —        |
 

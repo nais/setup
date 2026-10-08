@@ -6,6 +6,10 @@ inputs:
     description: "Version of nais CLI to install (e.g., 'v3.8.3' or 'latest')"
     required: false
     default: "latest"
+  github-token:
+    description: "Token for fetching nais CLI releases from the GitHub API"
+    required: false
+    default: ${{ github.token }}
   team:
     description: "Default team written to the nais CLI config file"
     required: false

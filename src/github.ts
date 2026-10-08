@@ -21,7 +21,11 @@ export async function getReleaseInfo(version: string): Promise<ReleaseInfo> {
       core.info(`Fetching release information for ${version}...`);
     }
 
-    const response = await client.getJson<GitHubRelease>(url);
+    const token = core.getInput('github-token');
+    const response = await client.getJson<GitHubRelease>(
+      url,
+      token ? { Authorization: `Bearer ${token}` } : undefined
+    );
 
     if (response.statusCode !== 200) {
       throw new NaisCliError(`GitHub API request failed with status ${response.statusCode}`);
