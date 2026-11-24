@@ -1,9 +1,10 @@
-import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type * as coreModule from '@actions/core';
 import type * as execModule from '@actions/exec';
-import type * as ioModule from '@actions/io';
 import type * as tcModule from '@actions/tool-cache';
-import type * as fsModule from 'fs';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import type { PlatformInfo, ReleaseInfo } from '../types';
 
 // Mock the external dependencies (ESM requires unstable_mockModule + dynamic imports)
@@ -19,33 +20,21 @@ jest.unstable_mockModule('@actions/tool-cache', () => ({
   downloadTool: jest.fn(),
   extractTar: jest.fn(),
 }));
-jest.unstable_mockModule('@actions/io', () => ({
-  mkdirP: jest.fn(),
-  cp: jest.fn(),
-}));
 jest.unstable_mockModule('@actions/exec', () => ({
   exec: jest.fn(),
-}));
-jest.unstable_mockModule('fs', () => ({
-  readFileSync: jest.fn(),
-  promises: {
-    access: jest.fn(),
-    chmod: jest.fn(),
-  },
-  constants: {
-    F_OK: 0,
-  },
 }));
 
 const { downloadAndInstall } = await import('../installer');
 const mockCore = (await import('@actions/core')) as jest.Mocked<typeof coreModule>;
 const mockExec = (await import('@actions/exec')) as jest.Mocked<typeof execModule>;
-const mockIo = (await import('@actions/io')) as jest.Mocked<typeof ioModule>;
 const mockTc = (await import('@actions/tool-cache')) as jest.Mocked<typeof tcModule>;
-const mockFs = (await import('fs')) as jest.Mocked<typeof fsModule>;
 
 describe('Installer', () => {
   const originalEnv = process.env;
+  let tmpDir: string;
+  let installDir: string;
+  let targetPath: string;
+  let binaryPath: string;
 
   const mockReleaseInfo: ReleaseInfo = {
     tagName: 'v3.8.3',
@@ -69,55 +58,89 @@ describe('Installer', () => {
   };
 
   beforeEach(() => {
-    jest.resetAllMocks();
-    process.env = { ...originalEnv };
+    jest.clearAllMocks();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nais-installer-'));
+    const home = path.join(tmpDir, 'home');
+    process.env = {
+      ...originalEnv,
+      HOME: home,
+      NODE_ENV: 'production',
+      NAIS_CLI_DRY_RUN: 'false',
+      GITHUB_ACTIONS: 'true',
+    };
+    installDir = path.join(home, '.local', 'bin');
+    targetPath = path.join(installDir, 'nais');
 
-    // Setup default mocks
-    mockTc.downloadTool.mockResolvedValue('/tmp/mock-file');
-    mockTc.extractTar.mockResolvedValue('/tmp/extracted');
-    mockIo.mkdirP.mockResolvedValue();
-    mockIo.cp.mockResolvedValue();
-    mockExec.exec.mockResolvedValue(0);
+    const archivePath = path.join(tmpDir, mockPlatformInfo.filename);
+    fs.writeFileSync(archivePath, 'test');
+    const checksumsPath = path.join(tmpDir, 'checksums.txt');
+    fs.writeFileSync(
+      checksumsPath,
+      '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08  ./release_artifacts/nais-cli_linux_amd64.tgz\n'
+    );
+    const extractedPath = path.join(tmpDir, 'extracted');
+    fs.mkdirSync(extractedPath);
+    binaryPath = path.join(extractedPath, 'nais');
+    fs.writeFileSync(binaryPath, 'new nais binary');
 
-    // Mock fs methods
-    (mockFs.promises.access as jest.Mock).mockResolvedValue(undefined);
-    (mockFs.promises.chmod as jest.Mock).mockResolvedValue(undefined);
-    (mockFs.readFileSync as jest.Mock)
-      .mockReturnValueOnce(
-        '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08  ./release_artifacts/nais-cli_linux_amd64.tgz\n'
-      ) // checksums.txt
-      .mockReturnValueOnce(Buffer.from('test')); // binary file for checksum
+    mockTc.downloadTool.mockResolvedValueOnce(archivePath).mockResolvedValueOnce(checksumsPath);
+    mockTc.extractTar.mockResolvedValue(extractedPath);
+    mockExec.exec.mockImplementation(async (_commandLine, _args, options) => {
+      options?.listeners?.stdout?.(Buffer.from('nais version v3.8.3'));
+      return 0;
+    });
   });
 
-  afterAll(() => {
+  afterEach(() => {
     process.env = originalEnv;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('atomically replaces an existing executable and cleans up', async () => {
+    fs.mkdirSync(installDir, { recursive: true });
+    fs.writeFileSync(targetPath, 'old nais binary', { mode: 0o755 });
+    const oldFd = fs.openSync(targetPath, 'r');
+
+    try {
+      const result = await downloadAndInstall(mockReleaseInfo, mockPlatformInfo);
+
+      expect(fs.readFileSync(oldFd, 'utf8')).toBe('old nais binary');
+      expect(fs.readFileSync(targetPath)).toEqual(fs.readFileSync(binaryPath));
+      expect(fs.statSync(targetPath).mode & 0o777).toBe(0o755);
+      expect(fs.readdirSync(installDir)).toEqual(['nais']);
+      expect(result.binaryPath).toBe(targetPath);
+      expect(result.version).toBe('v3.8.3');
+      expect(result.dryRun).toBe(false);
+      expect(mockCore.addPath).toHaveBeenCalledWith(installDir);
+    } finally {
+      fs.closeSync(oldFd);
+    }
+  });
+
+  it('leaves the destination intact and cleans up if replacement fails', async () => {
+    fs.mkdirSync(targetPath, { recursive: true });
+
+    await expect(downloadAndInstall(mockReleaseInfo, mockPlatformInfo)).rejects.toThrow(
+      'Installation failed'
+    );
+
+    expect(fs.readdirSync(targetPath)).toEqual([]);
+    expect(fs.readdirSync(installDir)).toEqual(['nais']);
+    expect(mockCore.addPath).not.toHaveBeenCalled();
   });
 
   describe('Dry Run Mode', () => {
     it('should run in dry-run mode when NODE_ENV is test', async () => {
       process.env.NODE_ENV = 'test';
-      process.env.HOME = '/home/testuser';
-
-      // Mock the version output
-      mockExec.exec.mockImplementation(async (_commandLine, _args, options) => {
-        if (options?.listeners?.stdout) {
-          options.listeners.stdout(Buffer.from('nais version v3.8.3'));
-        }
-        return 0;
-      });
 
       const result = await downloadAndInstall(mockReleaseInfo, mockPlatformInfo);
 
       // In dry-run mode, should not copy to permanent location
-      expect(mockIo.cp).not.toHaveBeenCalled();
+      expect(fs.existsSync(installDir)).toBe(false);
       expect(mockCore.addPath).not.toHaveBeenCalled();
 
       // Should still verify the binary works
-      expect(mockExec.exec).toHaveBeenCalledWith(
-        '/tmp/extracted/nais',
-        ['--version'],
-        expect.any(Object)
-      );
+      expect(mockExec.exec).toHaveBeenCalledWith(binaryPath, ['--version'], expect.any(Object));
 
       // Should log dry-run message
       expect(mockCore.info).toHaveBeenCalledWith(
@@ -125,29 +148,21 @@ describe('Installer', () => {
       );
 
       // Should return temporary path
-      expect(result.binaryPath).toBe('/tmp/extracted/nais');
+      expect(result.binaryPath).toBe(binaryPath);
       expect(result.version).toBe('v3.8.3');
     });
 
     it('should run in dry-run mode when NAIS_CLI_DRY_RUN is true', async () => {
       process.env.NAIS_CLI_DRY_RUN = 'true';
-      process.env.HOME = '/home/testuser';
-
-      mockExec.exec.mockImplementation(async (_commandLine, _args, options) => {
-        if (options?.listeners?.stdout) {
-          options.listeners.stdout(Buffer.from('nais version v3.8.3'));
-        }
-        return 0;
-      });
 
       const result = await downloadAndInstall(mockReleaseInfo, mockPlatformInfo);
 
-      expect(mockIo.cp).not.toHaveBeenCalled();
+      expect(fs.existsSync(installDir)).toBe(false);
       expect(mockCore.addPath).not.toHaveBeenCalled();
       expect(mockCore.info).toHaveBeenCalledWith(
         '🧪 Running in dry-run mode - skipping permanent installation'
       );
-      expect(result.binaryPath).toBe('/tmp/extracted/nais');
+      expect(result.binaryPath).toBe(binaryPath);
     });
   });
 });
