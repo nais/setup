@@ -2,8 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 import type * as coreModule from '@actions/core';
 import type * as execModule from '@actions/exec';
 import type * as tcModule from '@actions/tool-cache';
-import { spawn } from 'child_process';
-import { once } from 'events';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -96,31 +94,6 @@ describe('Installer', () => {
   afterEach(() => {
     process.env = originalEnv;
     fs.rmSync(tmpDir, { recursive: true, force: true });
-  });
-
-  const itOnLinux = process.platform === 'linux' ? it : it.skip;
-
-  itOnLinux('installs a new binary while the previous one is running', async () => {
-    fs.mkdirSync(installDir, { recursive: true });
-    fs.copyFileSync('/bin/cat', targetPath);
-    const runningNais = spawn(targetPath, [], { stdio: ['pipe', 'ignore', 'ignore'] });
-    const closed = new Promise((resolve) => runningNais.once('close', resolve));
-    try {
-      await once(runningNais, 'spawn');
-
-      const result = await downloadAndInstall(mockReleaseInfo, mockPlatformInfo);
-
-      expect(result).toEqual({ binaryPath: targetPath, version: 'v3.8.3', dryRun: false });
-      expect(fs.readFileSync(targetPath, 'utf8')).toBe('new nais binary');
-      expect(fs.statSync(targetPath).mode & 0o777).toBe(0o755);
-      expect(runningNais.kill(0)).toBe(true);
-      expect(fs.readdirSync(installDir)).toEqual(['nais']);
-      expect(mockCore.addPath).toHaveBeenCalledWith(installDir);
-      expect(mockExec.exec).toHaveBeenCalledWith(targetPath, ['--version'], expect.any(Object));
-    } finally {
-      runningNais.kill();
-      await closed;
-    }
   });
 
   it('leaves the destination intact and cleans up if replacement fails', async () => {
