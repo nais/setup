@@ -74,8 +74,21 @@ export async function downloadAndInstall(
       await io.mkdirP(installDir);
       targetPath = path.join(installDir, 'nais');
 
-      await io.cp(binaryPath, targetPath);
-      await makeExecutable(targetPath);
+      const stagingDir = await fs.promises.mkdtemp(path.join(installDir, '.nais-'));
+      try {
+        const stagedPath = path.join(stagingDir, 'nais');
+        await fs.promises.copyFile(binaryPath, stagedPath);
+        await makeExecutable(stagedPath);
+        await fs.promises.rename(stagedPath, targetPath);
+      } finally {
+        await fs.promises
+          .rm(stagingDir, { recursive: true, force: true })
+          .catch((error: unknown) => {
+            core.warning(
+              `Could not clean up temporary installation directory ${stagingDir}: ${error}`
+            );
+          });
+      }
 
       core.info(`Installed nais CLI to: ${targetPath}`);
       core.info(`Install directory: ${installDir}`);
