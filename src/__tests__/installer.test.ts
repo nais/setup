@@ -96,6 +96,27 @@ describe('Installer', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
+  it('atomically replaces an existing executable and cleans up', async () => {
+    fs.mkdirSync(installDir, { recursive: true });
+    fs.writeFileSync(targetPath, 'old nais binary', { mode: 0o755 });
+    const oldFd = fs.openSync(targetPath, 'r');
+
+    try {
+      const result = await downloadAndInstall(mockReleaseInfo, mockPlatformInfo);
+
+      expect(fs.readFileSync(oldFd, 'utf8')).toBe('old nais binary');
+      expect(fs.readFileSync(targetPath)).toEqual(fs.readFileSync(binaryPath));
+      expect(fs.statSync(targetPath).mode & 0o777).toBe(0o755);
+      expect(fs.readdirSync(installDir)).toEqual(['nais']);
+      expect(result.binaryPath).toBe(targetPath);
+      expect(result.version).toBe('v3.8.3');
+      expect(result.dryRun).toBe(false);
+      expect(mockCore.addPath).toHaveBeenCalledWith(installDir);
+    } finally {
+      fs.closeSync(oldFd);
+    }
+  });
+
   it('leaves the destination intact and cleans up if replacement fails', async () => {
     fs.mkdirSync(targetPath, { recursive: true });
 
