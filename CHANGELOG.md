@@ -1,5 +1,13 @@
 # setup
 
+## 1.0.4
+
+### Patch Changes
+
+- [#52](https://github.com/nais/setup/pull/52) [`3495f36`](https://github.com/nais/setup/commit/3495f365557af17ceeef397473362e1ee5170035) Thanks [@thokra-nav](https://github.com/thokra-nav)! - Replace the Nais CLI atomically so setup succeeds even while a previous installation is running.
+
+- [#48](https://github.com/nais/setup/pull/48) [`c06a3b5`](https://github.com/nais/setup/commit/c06a3b5abea14b22c5b7c6a33f0e8d3a12ece9be) Thanks [@Starefossen](https://github.com/Starefossen)! - Override transitive js-yaml to 3.15.2 to fix GHSA-2883-xcg3-v3hh.
+
 ## 1.0.3
 
 ### Patch Changes
